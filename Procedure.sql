@@ -128,3 +128,53 @@ begin
 	delete_movie_proc(movie_id);
 end;
 /
+
+--add moviebooking
+create or replace procedure add_moviebooking
+(moviebookingid IN moviebooking.moviebookingid%type,
+dateofbooking IN moviebooking.dateofbooking%type,
+datetowatch IN moviebooking.datetowatch%type,
+movie_id IN moviebooking.movie_id%type,
+seatcategory_id IN moviebooking.seatcategory_id%type,
+customer_id IN moviebooking.customer_id%type,
+formatid IN moviebooking.formatid%type,
+languageid IN moviebooking.languageid%type,
+screenid IN moviebooking.screenid%type,
+showtimingid IN moviebooking.showtimingid%type,
+theatreid IN moviebooking.theatreid%type,
+quantity IN int)
+IS
+m_total_amount int:=0;
+m_total_ticket int:=quantity;
+CURSOR booking_cur IS
+	select 	seatcategory_price from v_seats_seatcategory where seatcategoryid=seatcategory_id;
+m_price int;
+begin
+OPEN booking_cur;
+LOOP
+FETCH booking_cur INTO m_price;
+EXIT when booking_cur%NOTFOUND;
+m_total_amount:=(m_price * quantity) ;
+END LOOP;
+insert into moviebooking values(moviebookingid,dateofbooking,datetowatch,movie_id,seatcategory_id,customer_id,m_total_amount,m_total_ticket,formatid,languageid,screenid,showtimingid,theatreid);
+CLOSE booking_cur;
+END;	
+/
+
+declare 
+moviebookingid int:=&moviebookingid;
+dateofbooking date:=&dateofbooking;
+datetowatch date:=&datetowatch;
+movie_id int:=&movie_id;
+seatcategory_id int:=&seatcategory_id;
+customer_id int:=&customer_id;
+formatid int:=&formatid;
+languageid int:=&languageid;
+screenid int:=&screenid;
+showtimingid int:=&showtimingid;
+theatreid int:=&theatreid;
+quantity int:=&quantity;
+begin
+    add_moviebooking(moviebookingid,dateofbooking,datetowatch,movie_id,seatcategory_id,customer_id,formatid,languageid,screenid,showtimingid,theatreid,quantity);
+end;
+/
